@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milecapita Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tomato: '#FF6347'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.85; }
+    }
+    .animate-pulse-glow { animation: pulseGlow 2s infinite ease-in-out; }
+
+    .glass-card {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 99, 71, 0.25);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+    .glass-card:hover {
+      border-color: rgba(255, 99, 71, 0.5);
+      box-shadow: 0 15px 30px -5px rgba(255, 99, 71, 0.15), 0 10px 12px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .custom-select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.25em 1.25em;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .custom-select option {
+      background-color: #111827;
+      color: #f3f4f6;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body class="bg-gray-950 flex justify-center min-h-screen font-sans">
+
+  <div class="w-full max-w-md bg-gradient-to-b from-[#FF6347] via-[#FF8C6B] to-gray-950 text-gray-900 flex flex-col min-h-screen relative shadow-2xl overflow-x-hidden">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 w-full">
+      <div class="glass-card rounded-3xl p-6 w-full max-w-sm space-y-4 text-center shadow-2xl fade-in-up">
+        <div class="w-16 h-16 bg-gradient-to-br from-[#FF8C6B] to-[#FF6347] rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-tomato/30 border border-white/20">
+          <img src="https://i.ibb.co/wZXxTC0g/ei-1790277686905-removebg-preview.png" alt="Logo" class="w-10 h-10 object-contain drop-shadow">
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-white">Milecapita Admin</h2>
+          <p class="text-[11px] text-gray-400">Sign in with Firebase credentials</p>
+        </div>
+
+        <div class="space-y-3 text-left pt-2">
+          <div>
+            <label class="text-[10px] uppercase font-bold text-gray-400 ml-1">Email</label>
+            <input type="email" id="adminUser" placeholder="admin@melicapita.com" class="w-full bg-gray-900/80 border border-gray-700/80 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-tomato focus:ring-1 focus:ring-tomato transition-all mt-1">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-gray-400 ml-1">Password</label>
+            <input type="password" id="adminPass" placeholder="••••••••" class="w-full bg-gray-900/80 border border-gray-700/80 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-tomato focus:ring-1 focus:ring-tomato transition-all mt-1">
+          </div>
+        </div>
+
+        <p id="loginError" class="text-xs text-rose-400 hidden font-medium"></p>
+
+        <button id="loginBtn" onclick="adminLogin()" class="w-full bg-gradient-to-r from-tomato to-orange-500 hover:from-orange-500 hover:to-tomato text-white font-bold py-3 rounded-xl text-xs shadow-lg shadow-tomato/30 transition-all transform active:scale-95">Login to Admin</button>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" class="hidden min-h-screen flex-col w-full">
+      <header class="flex-shrink-0 flex justify-between items-center py-3 px-4 bg-white/10 backdrop-blur-md z-30 border-b border-white/20 shadow-sm sticky top-0">
+        <div class="flex items-center space-x-2.5">
+          <img src="https://i.ibb.co/wZXxTC0g/ei-1790277686905-removebg-preview.png" alt="Milecapita Logo" class="w-8 h-8 object-contain drop-shadow-md">
+          <div>
+            <h1 class="font-bold text-sm text-white tracking-tight drop-shadow-sm">Admin Dashboard</h1>
+            <p class="text-[9px] text-emerald-300 font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live System Active
+            </p>
+          </div>
+        </div>
+        <button onclick="adminLogout()" class="bg-white/20 hover:bg-white/30 text-white border border-white/30 px-3 py-1 rounded-xl text-[11px] font-bold backdrop-blur-sm transition-all active:scale-95">Logout</button>
+      </header>
+
+      <div class="flex overflow-x-auto bg-gray-950/70 backdrop-blur-md p-2 gap-2 border-b border-white/10 text-xs font-bold no-scrollbar sticky top-[57px] z-20">
+        <button data-tab="overview" onclick="switchAdminTab('overview')" class="admin-tab bg-tomato text-white px-3.5 py-1.5 rounded-xl whitespace-nowrap shadow-md transition-all transform active:scale-95">Overview</button>
+        <button data-tab="pending" onclick="switchAdminTab('pending')" class="admin-tab text-white/80 hover:text-white px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all transform active:scale-95">Pending Tx</button>
+        <button data-tab="users" onclick="switchAdminTab('users')" class="admin-tab text-white/80 hover:text-white px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all transform active:scale-95">Users</button>
+        <button data-tab="notifs" onclick="switchAdminTab('notifs')" class="admin-tab text-white/80 hover:text-white px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all transform active:scale-95">Notifs</button>
+        <button data-tab="settings" onclick="switchAdminTab('settings')" class="admin-tab text-white/80 hover:text-white px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all transform active:scale-95">Settings</button>
+      </div>
+
+      <main class="p-4 flex-1 w-full space-y-5 pb-10">
+
+        <!-- TAB: OVERVIEW -->
+        <div id="tab-overview" class="tab-content space-y-4 fade-in-up">
+          <div class="grid grid-cols-2 gap-3.5">
+            <div class="glass-card rounded-2xl p-4 shadow-xl transition-all duration-200 transform hover:-translate-y-1 relative overflow-hidden group">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Total Users</span>
+                <div class="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+              </div>
+              <p id="statTotalUsers" class="text-2xl font-black text-white">0</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 shadow-xl transition-all duration-200 transform hover:-translate-y-1 relative overflow-hidden group">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Total Balances</span>
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+              </div>
+              <p id="statTotalBalance" class="text-base font-black text-emerald-400">UGX 0</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 shadow-xl transition-all duration-200 transform hover:-translate-y-1 relative overflow-hidden group">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Pending Deposits</span>
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </div>
+              </div>
+              <p id="statPendingDeposits" class="text-2xl font-black text-amber-400">0</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 shadow-xl transition-all duration-200 transform hover:-translate-y-1 relative overflow-hidden group">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Pending Withdrawals</span>
+                <div class="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-400/30 flex items-center justify-center text-rose-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                </div>
+              </div>
+              <p id="statPendingWithdrawals" class="text-2xl font-black text-rose-400">0</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 shadow-xl transition-all duration-200 transform hover:-translate-y-1 relative overflow-hidden group">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Active Laptops</span>
+                <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+              </div>
+              <p id="statActiveInvestments" class="text-2xl font-black text-sky-400">0</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 shadow-xl transition-all duration-200 transform hover:-translate-y-1 relative overflow-hidden group">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Ref Balances</span>
+                <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                </div>
+              </div>
+              <p id="statReferral" class="text-base font-black text-purple-400">UGX 0</p>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 shadow-xl space-y-3">
+            <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center justify-between">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Recent System Activity
+              </span>
+              <span class="w-2 h-2 rounded-full bg-tomato animate-ping"></span>
+            </h3>
+            <div id="recentActivity" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- TAB: PENDING TRANSACTIONS -->
+        <div id="tab-pending" class="tab-content hidden space-y-5 fade-in-up">
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
+              <div class="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              </div>
+              Pending Deposits
+            </h3>
+            <div id="pendingDeposits" class="space-y-2.5"></div>
+          </div>
+
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold text-rose-300 uppercase tracking-wider flex items-center gap-2">
+              <div class="w-6 h-6 rounded-lg bg-rose-500/20 border border-rose-400/30 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              </div>
+              Pending Withdrawals
+            </h3>
+            <div id="pendingWithdrawals" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- TAB: USERS -->
+        <div id="tab-users" class="tab-content hidden space-y-3.5 fade-in-up">
+          <div class="relative">
+            <input type="text" id="userSearch" oninput="renderUsers()" placeholder="Search username or email..." class="w-full bg-gray-900/90 border border-tomato/30 text-white rounded-xl py-3 pl-10 pr-4 text-xs focus:outline-none focus:border-tomato transition-all shadow-md">
+            <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+          <div id="usersList" class="space-y-3"></div>
+        </div>
+
+        <!-- TAB: NOTIFICATIONS -->
+        <div id="tab-notifs" class="tab-content hidden space-y-4 fade-in-up">
+          <div class="glass-card p-4 rounded-2xl shadow-xl space-y-4">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-gray-800 pb-2">
+              <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+              Broadcast Notification
+            </h3>
+            
+            <div>
+              <label class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5 block">Recipient</label>
+              <div class="relative">
+                <select id="notifTarget" class="custom-select w-full bg-gray-900/90 border border-gray-700/80 text-white text-xs font-medium rounded-xl p-3 focus:outline-none focus:border-tomato focus:ring-1 focus:ring-tomato transition-all pr-8 shadow-sm cursor-pointer">
+                  <option value="all">🌐 All Users</option>
+                  <option value="__custom">👤 Specific User</option>
+                </select>
+              </div>
+            </div>
+
+            <input type="text" id="notifCustomUser" placeholder="Enter username..." class="hidden w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-3 focus:outline-none focus:border-tomato">
+
+            <div>
+              <label class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5 block">Notification Type</label>
+              <input type="hidden" id="notifType" value="info">
+              <div class="grid grid-cols-3 gap-2">
+                <label onclick="selectNotifType('info')" id="type-info" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-sky-500/50 bg-sky-950/30 text-sky-400 cursor-pointer transition-all active:scale-95 text-center">
+                  <div class="w-2.5 h-2.5 rounded-full bg-sky-400 mb-1 shadow-sm shadow-sky-400/50"></div>
+                  <span class="text-[11px] font-bold">Info</span>
+                  <span class="text-[9px] text-gray-400">Blue</span>
+                </label>
+
+                <label onclick="selectNotifType('success')" id="type-success" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-800 bg-gray-900/60 text-gray-400 hover:border-emerald-500/40 cursor-pointer transition-all active:scale-95 text-center">
+                  <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 mb-1 opacity-40"></div>
+                  <span class="text-[11px] font-bold">Success</span>
+                  <span class="text-[9px] text-gray-500">Green</span>
+                </label>
+
+                <label onclick="selectNotifType('warning')" id="type-warning" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-800 bg-gray-900/60 text-gray-400 hover:border-rose-500/40 cursor-pointer transition-all active:scale-95 text-center">
+                  <div class="w-2.5 h-2.5 rounded-full bg-rose-400 mb-1 opacity-40"></div>
+                  <span class="text-[11px] font-bold">Warning</span>
+                  <span class="text-[9px] text-gray-500">Red</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5 block">Title</label>
+              <input type="text" id="notifTitle" placeholder="Announcement title" class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-3 focus:outline-none focus:border-tomato">
+            </div>
+
+            <div>
+              <label class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5 block">Message</label>
+              <textarea id="notifMessage" rows="3" placeholder="Message content..." class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-3 focus:outline-none focus:border-tomato"></textarea>
+            </div>
+
+            <button onclick="sendNotification()" class="w-full bg-gradient-to-r from-tomato to-orange-500 hover:from-orange-500 hover:to-tomato text-white text-xs font-bold py-3 rounded-xl shadow-lg shadow-tomato/20 transition-all active:scale-95">Broadcast Message</button>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl shadow-xl space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">History</h3>
+              <button onclick="openConfirmModal('clearNotifs')" class="text-rose-400 text-xs hover:underline">Clear All</button>
+            </div>
+            <div id="notifHistory" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- TAB: SETTINGS -->
+        <div id="tab-settings" class="tab-content hidden space-y-4 fade-in-up">
+          <div class="glass-card p-4 rounded-2xl shadow-xl space-y-3.5">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              Global Financial Settings
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-[9px] text-gray-400 uppercase font-bold">Welcome Bonus (UGX)</label>
+                <input type="number" id="setWelcomeBonus" class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-2.5 mt-1 focus:outline-none focus:border-tomato">
+              </div>
+              <div>
+                <label class="text-[9px] text-gray-400 uppercase font-bold">Daily Rate (0.20 = 20%)</label>
+                <input type="number" step="0.01" id="setDailyRate" class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-2.5 mt-1 focus:outline-none focus:border-tomato">
+              </div>
+              <div>
+                <label class="text-[9px] text-gray-400 uppercase font-bold">Ref Rate (0.15 = 15%)</label>
+                <input type="number" step="0.01" id="setLevel1" class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-2.5 mt-1 focus:outline-none focus:border-tomato">
+              </div>
+              <div>
+                <label class="text-[9px] text-gray-400 uppercase font-bold">Min Withdrawal (UGX)</label>
+                <input type="number" id="setMinWithdrawal" class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-2.5 mt-1 focus:outline-none focus:border-tomato">
+              </div>
+              <div class="col-span-2">
+                <label class="text-[9px] text-gray-400 uppercase font-bold">Signup Referral Bonus (UGX)</label>
+                <input type="number" id="setReferralBonus" class="w-full bg-gray-900 border border-gray-700/80 text-white text-xs rounded-xl p-2.5 mt-1 focus:outline-none focus:border-tomato">
+              </div>
+            </div>
+
+            <hr class="border-gray-800 my-3">
+
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <h4 class="text-xs font-bold text-white uppercase">Payment Providers</h4>
+                <button onclick="addProvider()" class="bg-gray-800 text-emerald-400 hover:bg-gray-700 text-xs px-3 py-1 rounded-lg border border-gray-700 transition-all">+ Add</button>
+              </div>
+              <div id="providersList" class="space-y-2.5"></div>
+            </div>
+
+            <button onclick="saveAllSettings()" class="w-full bg-gradient-to-r from-tomato to-orange-500 hover:from-orange-500 hover:to-tomato text-white text-xs font-bold py-3 rounded-xl shadow-lg shadow-tomato/20 transition-all active:scale-95">Save Global Settings</button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- CREDIT/DEBIT MODAL -->
+  <div id="creditModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl fade-in-up">
+      <div class="flex justify-between items-center">
+        <h3 id="creditModalTitle" class="text-sm font-bold text-white">Adjust Balance</h3>
+        <button onclick="document.getElementById('creditModal').classList.add('hidden')" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+      <div class="text-center py-1">
+        <div id="creditModalIcon" class="w-12 h-12 rounded-2xl bg-tomato/20 border border-tomato/30 flex items-center justify-center mx-auto text-tomato text-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <p id="creditModalUser" class="text-xs text-gray-300 mt-2 font-medium"></p>
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 uppercase font-bold">Amount (UGX)</label>
+        <input type="number" id="creditAmount" placeholder="Enter amount..." class="w-full bg-gray-900 border border-gray-700/80 text-white text-sm rounded-xl p-3 mt-1 focus:outline-none focus:border-tomato">
+      </div>
+      <div class="flex gap-2">
+        <button onclick="document.getElementById('creditModal').classList.add('hidden')" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl text-xs transition-all">Cancel</button>
+        <button id="creditConfirmBtn" onclick="confirmCredit()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-md active:scale-95">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERIC CONFIRMATION MODAL -->
+  <div id="confirmModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-sm space-y-4 text-center shadow-2xl fade-in-up">
+      <h3 id="confirmTitle" class="text-sm font-bold text-white">Are you sure?</h3>
+      <p id="confirmBody" class="text-xs text-gray-300 leading-relaxed"></p>
+      <div class="flex gap-2 pt-1">
+        <button onclick="document.getElementById('confirmModal').classList.add('hidden')" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-xl text-xs transition-all">Cancel</button>
+        <button id="confirmActionBtn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-md active:scale-95">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERT MODAL -->
+  <div id="adminMessage" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl fade-in-up">
+      <h3 id="adminMsgTitle" class="text-sm font-bold text-white">Notification</h3>
+      <p id="adminMsgBody" class="text-xs text-gray-300 leading-relaxed"></p>
+      <button onclick="document.getElementById('adminMessage').classList.add('hidden')" class="w-full bg-gradient-to-r from-tomato to-orange-500 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all active:scale-95">OK</button>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script type="module">
+    import { db, auth, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, where, getDocs, deleteDoc, increment, signInWithEmailAndPassword, signOut, onAuthStateChanged } from './firebase-config.js';
+
+    let ALL_USERS = {}, ALL_SETTINGS = {}, ALL_NOTIFS = [];
+    let currentActionUid = null, currentActionType = null;
+
+    function formatUGX(n){return parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
+    function showAdminMessage(t,b){document.getElementById("adminMsgTitle").innerText=t;document.getElementById("adminMsgBody").innerText=b;document.getElementById("adminMessage").classList.remove("hidden");}
+
+    window.selectNotifType = function(type) {
+      document.getElementById("notifType").value = type;
+      const types = ['info', 'success', 'warning'];
+      
+      types.forEach(t => {
+        const el = document.getElementById("type-" + t);
+        const dot = el.querySelector("div");
+        const subtext = el.querySelectorAll("span")[1];
+        
+        if (t === type) {
+          if (t === 'info') {
+            el.className = "flex flex-col items-center justify-center p-2.5 rounded-xl border border-sky-500/50 bg-sky-950/30 text-sky-400 cursor-pointer transition-all active:scale-95 text-center";
+          } else if (t === 'success') {
+            el.className = "flex flex-col items-center justify-center p-2.5 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-emerald-400 cursor-pointer transition-all active:scale-95 text-center";
+          } else if (t === 'warning') {
+            el.className = "flex flex-col items-center justify-center p-2.5 rounded-xl border border-rose-500/50 bg-rose-950/30 text-rose-400 cursor-pointer transition-all active:scale-95 text-center";
+          }
+          dot.classList.remove("opacity-40");
+          if(subtext) subtext.classList.remove("text-gray-500");
+        } else {
+          el.className = "flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-800 bg-gray-900/60 text-gray-400 cursor-pointer transition-all active:scale-95 text-center";
+          dot.classList.add("opacity-40");
+          if(subtext) subtext.classList.add("text-gray-500");
+        }
+      });
+    };
+
+    window.adminLogin = async function(){
+      const email = document.getElementById("adminUser").value.trim();
+      const pass = document.getElementById("adminPass").value.trim();
+      const btn = document.getElementById("loginBtn");
+      const err = document.getElementById("loginError");
+
+      if(!email || !pass){ 
+        err.innerText = "Enter email and password"; 
+        err.classList.remove("hidden"); 
+        return; 
+      }
+
+      btn.innerText = "Verifying..."; 
+      btn.disabled = true; 
+      err.classList.add("hidden");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch(e) {
+        err.innerText = "Authentication failed: " + e.message; 
+        err.classList.remove("hidden"); 
+        btn.innerText = "Login to Admin"; 
+        btn.disabled = false;
+      }
+    };
+
+    window.adminLogout = async function(){
+      await signOut(auth);
+      location.reload();
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user && user.email === "admin@melicapita.com") {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        document.getElementById("adminPanel").classList.add("flex");
+        await initAdminPanel();
+      } else {
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("adminPanel").classList.add("hidden");
+      }
+    });
+
+    async function initAdminPanel(){
+      try{
+        let snap = await getDoc(doc(db,"settings","global"));
+        if(snap.exists()) ALL_SETTINGS = snap.data();
+        else { 
+          ALL_SETTINGS = {welcomeBonus:3000, dailyReturnRate:0.20, withdrawalFeeRate:0.10, level1Commission:0.15, minWithdrawal:7000, referralBonus:500, providers:[{number:"0765050916",name:"Kakandefrank",network:"MTN"},{number:"0747473704",name:"Mesigwa Amos",network:"Airtel"}]}; 
+          await setDoc(doc(db,"settings","global"), ALL_SETTINGS); 
+        }
+      }catch(e){ 
+        ALL_SETTINGS = {welcomeBonus:3000, dailyReturnRate:0.20, level1Commission:0.15, minWithdrawal:7000, referralBonus:500, providers:[]}; 
+      }
+      loadSettingsForm();
+      
+      onSnapshot(collection(db,"users"), (s)=>{ ALL_USERS={}; s.forEach(d=>{ ALL_USERS[d.id]=d.data(); }); renderDashboard(); renderUsers(); renderPending(); });
+      onSnapshot(collection(db,"notifications"), (s)=>{ ALL_NOTIFS=[]; s.forEach(d=>ALL_NOTIFS.push({id:d.id,...d.data()})); ALL_NOTIFS.sort((a,b)=>new Date(b.sentAt||0)-new Date(a.sentAt||0)); renderNotifHistory(); });
+    }
+
+    window.switchAdminTab=function(tab){
+      document.querySelectorAll(".admin-tab").forEach(b=>{ b.classList.remove("bg-tomato","text-white","shadow-md"); b.classList.add("text-white/80"); if(b.dataset.tab===tab){b.classList.add("bg-tomato","text-white","shadow-md"); b.classList.remove("text-white/80");} });
+      document.querySelectorAll(".tab-content").forEach(el=>el.classList.add("hidden")); 
+      const current = document.getElementById("tab-"+tab);
+      current.classList.remove("hidden");
+      current.classList.remove("fade-in-up");
+      void current.offsetWidth;
+      current.classList.add("fade-in-up");
+    };
+
+    function renderDashboard(){
+      const uids=Object.keys(ALL_USERS); let total=0, pd=0, pw=0, active=0, ref=0;
+      uids.forEach(uid=>{ const u=ALL_USERS[uid]; total+=(u.balance||0)+(u.referralBalance||0); ref+=(u.referralBalance||0); active+=(u.activeLaptops||[]).length; (u.transactions||[]).forEach(tx=>{ if(tx.status==="Pending"&&tx.type==="Deposit") pd++; if(tx.status==="Pending"&&tx.type==="Withdrawal") pw++; }); });
+      document.getElementById("statTotalUsers").innerText=uids.length;
+      document.getElementById("statTotalBalance").innerText="UGX "+formatUGX(total);
+      document.getElementById("statPendingDeposits").innerText=pd;
+      document.getElementById("statPendingWithdrawals").innerText=pw;
+      document.getElementById("statActiveInvestments").innerText=active;
+      document.getElementById("statReferral").innerText="UGX "+formatUGX(ref);
+      const allTx=[]; uids.forEach(uid=>{ (ALL_USERS[uid].transactions||[]).forEach(tx=>allTx.push({...tx,user:ALL_USERS[uid].username})); });
+      const el=document.getElementById("recentActivity");
+      el.innerHTML=allTx.length===0?`<p class="text-xs text-gray-500 text-center py-4">No activity</p>`:allTx.slice(0,8).map(tx=>`<div class="flex justify-between items-center bg-gray-900/60 hover:bg-gray-900/90 p-2.5 rounded-xl border border-gray-800 transition-all"><div><p class="text-xs font-bold text-white">${tx.type} • ${tx.user}</p><p class="text-[10px] text-gray-400">${tx.date} • ${tx.id}</p></div><span class="text-xs font-bold ${tx.type==='Deposit'?'text-emerald-400':'text-rose-400'}">UGX ${formatUGX(tx.amount)}</span></div>`).join("");
+    }
+
+    window.renderUsers=function(){
+      const search=(document.getElementById("userSearch").value||"").toLowerCase(); const c=document.getElementById("usersList");
+      const filtered=Object.keys(ALL_USERS).filter(uid=>{ const u=ALL_USERS[uid]; return!search || (u.username||"").toLowerCase().includes(search) || (u.email||"").toLowerCase().includes(search); });
+      if(filtered.length===0){c.innerHTML=`<p class="text-xs text-gray-400 text-center py-4">No users found</p>`;return;}
+      c.innerHTML=filtered.map(uid=>{
+        const u=ALL_USERS[uid]; const total=(u.balance||0)+(u.referralBalance||0);
+        return `<div class="glass-card rounded-2xl p-3.5 border border-tomato/30 shadow-md space-y-3"><div class="flex justify-between items-start"><div><h4 class="font-bold text-xs text-white">${u.username||'No name'}</h4><p class="text-[10px] text-gray-400">${u.email||''}<br>${u.phone||''}</p></div><span class="text-xs text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded-lg">UGX ${formatUGX(total)}</span></div><div class="grid grid-cols-3 gap-2"><button onclick="openCreditModal('${uid}','credit')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-2 rounded-xl shadow-sm transition-all active:scale-95">+ Credit</button><button onclick="openCreditModal('${uid}','debit')" class="bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold py-2 rounded-xl shadow-sm transition-all active:scale-95">- Debit</button><button onclick="openConfirmModal('deleteUser','${uid}')" class="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold py-2 rounded-xl shadow-sm transition-all active:scale-95">Delete</button></div></div>`;
+      }).join("");
+    };
+
+    window.openCreditModal=function(uid,type){
+      currentActionUid=uid; currentActionType=type;
+      const u=ALL_USERS[uid];
+      document.getElementById("creditModalUser").innerText=u.username + " • Balance UGX "+formatUGX(u.balance||0);
+      document.getElementById("creditAmount").value="";
+      if(type==='credit'){
+        document.getElementById("creditModalTitle").innerText="Credit User";
+        document.getElementById("creditConfirmBtn").innerText="Credit Now";
+        document.getElementById("creditConfirmBtn").className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all active:scale-95";
+      }else{
+        document.getElementById("creditModalTitle").innerText="Debit User";
+        document.getElementById("creditConfirmBtn").innerText="Debit Now";
+        document.getElementById("creditConfirmBtn").className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all active:scale-95";
+      }
+      document.getElementById("creditModal").classList.remove("hidden");
+    };
+
+    window.confirmCredit=async function(){
+      const amount=parseFloat(document.getElementById("creditAmount").value);
+      if(!amount||amount<=0){ showAdminMessage("Error","Enter valid amount"); return; }
+      const uid=currentActionUid; const u=ALL_USERS[uid];
+      const adjustment = currentActionType === 'credit' ? amount : -amount;
+
+      try {
+        await updateDoc(doc(db,"users",uid), { balance: increment(adjustment) });
+        showAdminMessage(currentActionType==='credit'?"Credited":"Debited", `Adjusted balance for ${u.username} by UGX ${formatUGX(amount)}`);
+      } catch(e) {
+        showAdminMessage("Error", e.message);
+      }
+      document.getElementById("creditModal").classList.add("hidden");
+    };
+
+    window.openConfirmModal=function(action, uid=null){
+      currentActionUid=uid; currentActionType=action;
+      const titleEl=document.getElementById("confirmTitle"); const bodyEl=document.getElementById("confirmBody"); const btnEl=document.getElementById("confirmActionBtn");
+      if(action==='deleteUser'){ const u=ALL_USERS[uid]; titleEl.innerText="Delete "+(u.username||"user")+"?"; bodyEl.innerText="This will permanently delete the user and all associated data."; btnEl.innerText="Delete User"; btnEl.onclick=confirmDeleteUser; }
+      else if(action==='clearNotifs'){ titleEl.innerText="Clear all notifications?"; bodyEl.innerText="All sent notifications will be deleted permanently."; btnEl.innerText="Clear All"; btnEl.onclick=confirmClearNotifs; }
+      document.getElementById("confirmModal").classList.remove("hidden");
+    };
+
+    window.confirmDeleteUser=async function(){ document.getElementById("confirmModal").classList.add("hidden"); if(!currentActionUid) return; await deleteDoc(doc(db,"users",currentActionUid)); showAdminMessage("Deleted","User deleted successfully"); };
+    window.confirmClearNotifs=async function(){ document.getElementById("confirmModal").classList.add("hidden"); const snap=await getDocs(collection(db,"notifications")); const dels=[]; snap.forEach(d=>dels.push(deleteDoc(doc(db,"notifications",d.id)))); await Promise.all(dels); };
+
+    function renderPending(){
+      const depEl=document.getElementById("pendingDeposits"); const wdEl=document.getElementById("pendingWithdrawals");
+      const deps=[], wds=[];
+      Object.keys(ALL_USERS).forEach(uid=>{ (ALL_USERS[uid].transactions||[]).forEach(tx=>{ if(tx.status==="Pending"&&tx.type==="Deposit") deps.push({uid,user:ALL_USERS[uid].username,tx}); if(tx.status==="Pending"&&tx.type==="Withdrawal") wds.push({uid,user:ALL_USERS[uid].username,tx}); }); });
+      depEl.innerHTML=deps.length===0?`<p class="text-xs text-gray-400 text-center py-3 bg-gray-900/60 rounded-xl border border-gray-800">No pending deposits</p>`:deps.map(d=>`<div class="glass-card rounded-2xl p-3 border border-amber-500/30 shadow-md space-y-2"><div class="flex justify-between items-start"><div><p class="text-xs font-bold text-white">${d.user} - ${d.tx.id}</p><p class="text-[10px] text-gray-400">${d.tx.date}</p></div><span class="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded-lg">UGX ${formatUGX(d.tx.amount)}</span></div><div class="flex gap-2"><button onclick="approveTx('${d.uid}','${d.tx.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-2 rounded-xl transition-all active:scale-95">Approve +15% Ref</button><button onclick="rejectTx('${d.uid}','${d.tx.id}')" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold py-2 rounded-xl transition-all active:scale-95">Reject</button></div></div>`).join("");
+      wdEl.innerHTML=wds.length===0?`<p class="text-xs text-gray-400 text-center py-3 bg-gray-900/60 rounded-xl border border-gray-800">No pending withdrawals</p>`:wds.map(d=>`<div class="glass-card rounded-2xl p-3 border border-rose-500/30 shadow-md space-y-2"><div class="flex justify-between items-start"><div><p class="text-xs font-bold text-white">${d.user} - ${d.tx.id}</p><p class="text-[10px] text-gray-400">${d.tx.date}</p></div><span class="text-xs font-bold text-rose-400 bg-rose-950/60 border border-rose-800/50 px-2 py-0.5 rounded-lg">UGX ${formatUGX(d.tx.amount)}</span></div><div class="flex gap-2"><button onclick="approveTx('${d.uid}','${d.tx.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-2 rounded-xl transition-all active:scale-95">Approve</button><button onclick="rejectTx('${d.uid}','${d.tx.id}')" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold py-2 rounded-xl transition-all active:scale-95">Reject + Refund</button></div></div>`).join("");
+    }
+
+    window.approveTx=async function(uid,txId){
+      const u=ALL_USERS[uid]; if(!u) return;
+      const txs=u.transactions||[]; const tx=txs.find(t=>t.id===txId); if(!tx) return;
+      tx.status="Completed";
+      
+      // ✨ DEPOSIT approved → ADD balance. WITHDRAWAL approved → nothing (already deducted on request).
+      if(tx.type==="Deposit") {
+        await updateDoc(doc(db,"users",uid),{ transactions: txs, balance: increment(tx.amount) });
+
+        // Pay 15% referral commission on every deposit
+        if(ALL_USERS[uid].referredBy){
+          try{
+            const q=query(collection(db,"users"), where("username","==", ALL_USERS[uid].referredBy));
+            const snap=await getDocs(q);
+            if(!snap.empty){
+              const refDoc=snap.docs[0]; const bonus=Math.floor(tx.amount * 0.15);
+              if(bonus>0){
+                await updateDoc(doc(db,"users",refDoc.id),{ balance: increment(bonus), referralBalance: increment(bonus) });
+                await addDoc(collection(db,"notifications"),{ target: refDoc.data().username, type: "success", title: "Referral Bonus 15% Earned!", message: `You earned UGX ${formatUGX(bonus)} from ${ALL_USERS[uid].username}'s deposit`, sentAt: new Date().toISOString() });
+              }
+            }
+          }catch(e){ console.log(e); }
+        }
+      } else if (tx.type === "Withdrawal") {
+        // Nothing to change on balance — already deducted when user submitted
+        await updateDoc(doc(db,"users",uid),{ transactions: txs });
+      }
+
+      // Notify the user
+      await addDoc(collection(db,"notifications"),{ target: u.username, type:"success", title: tx.type+" Approved", message:`Your ${tx.type} of UGX ${formatUGX(tx.amount)} approved!`, sentAt:new Date().toISOString() });
+      showAdminMessage("Approved", `UGX ${formatUGX(tx.amount)} approved`);
+    };
+
+    window.rejectTx=async function(uid,txId){
+      const u=ALL_USERS[uid]; if(!u) return;
+      const txs=u.transactions||[]; const tx=txs.find(t=>t.id===txId); if(!tx) return;
+      tx.status="Rejected";
+      
+      if (tx.type === "Withdrawal") {
+        // ✨ Withdrawal rejected → REFUND (balance was deducted when the user submitted)
+        await updateDoc(doc(db,"users",uid),{ transactions: txs, balance: increment(tx.amount) });
+      } else {
+        // Deposit rejected → nothing changes
+        await updateDoc(doc(db,"users",uid),{ transactions: txs });
+      }
+      
+      await addDoc(collection(db,"notifications"),{ 
+        target: u.username, 
+        type:"warning", 
+        title: tx.type+" Rejected", 
+        message: tx.type === "Withdrawal" 
+          ? `Your withdrawal of UGX ${formatUGX(tx.amount)} was rejected. The amount has been refunded to your balance.`
+          : `Your deposit of UGX ${formatUGX(tx.amount)} was rejected.`,
+        sentAt:new Date().toISOString() 
+      });
+      showAdminMessage("Rejected", tx.type === "Withdrawal" ? `UGX ${formatUGX(tx.amount)} refunded to ${u.username}` : "Transaction rejected");
+    };
+
+    window.sendNotification=async function(){ 
+      const target=document.getElementById("notifTarget").value==="__custom"?document.getElementById("notifCustomUser").value.trim():"all"; 
+      const type=document.getElementById("notifType").value; 
+      const title=document.getElementById("notifTitle").value.trim(); 
+      const message=document.getElementById("notifMessage").value.trim(); 
+      if(!target||!title||!message) return showAdminMessage("Error","Fill all fields"); 
+      await addDoc(collection(db,"notifications"),{target,type,title,message,sentAt:new Date().toISOString()}); 
+      showAdminMessage("Sent","Notification sent to "+target); 
+    };
+
+    function renderNotifHistory(){ const c=document.getElementById("notifHistory"); if(ALL_NOTIFS.length===0){c.innerHTML=`<p class="text-xs text-gray-400 text-center py-3">No notifications</p>`;return;} c.innerHTML=ALL_NOTIFS.map(n=>`<div class="bg-gray-900/80 rounded-xl p-2.5 border border-gray-800"><p class="text-xs font-bold text-white">${n.title}</p><p class="text-[10px] text-gray-300 mt-0.5">${n.message}</p><p class="text-[9px] text-gray-400 mt-1">To: ${n.target} • ${new Date(n.sentAt).toLocaleString()}</p></div>`).join(""); }
+
+    function loadSettingsForm(){
+      document.getElementById("setWelcomeBonus").value=ALL_SETTINGS.welcomeBonus||3000;
+      document.getElementById("setDailyRate").value=ALL_SETTINGS.dailyReturnRate||0.20;
+      document.getElementById("setLevel1").value=ALL_SETTINGS.level1Commission||0.15;
+      document.getElementById("setMinWithdrawal").value=ALL_SETTINGS.minWithdrawal||7000;
+      document.getElementById("setReferralBonus").value=ALL_SETTINGS.referralBonus||500;
+      renderProviders(ALL_SETTINGS.providers||[]);
+    }
+    function renderProviders(providers){ document.getElementById("providersList").innerHTML=providers.map((p,i)=>`<div class="bg-gray-900/80 rounded-xl p-3 border border-gray-800 space-y-2"><div class="flex justify-between items-center"><span class="text-[10px] font-bold text-tomato uppercase tracking-wider">Provider ${i+1}</span><button onclick="removeProvider(${i})" class="text-rose-400 hover:text-rose-300 text-[10px]">Remove</button></div><input type="text" value="${p.number}" onchange="updateProvider(${i},'number',this.value)" class="w-full bg-gray-950 border border-gray-800 text-white text-xs rounded-lg p-2 focus:outline-none focus:border-tomato"><input type="text" value="${p.name}" onchange="updateProvider(${i},'name',this.value)" class="w-full bg-gray-950 border border-gray-800 text-white text-xs rounded-lg p-2 focus:outline-none focus:border-tomato"><select onchange="updateProvider(${i},'network',this.value)" class="custom-select w-full bg-gray-950 border border-gray-800 text-white text-xs rounded-lg p-2 focus:outline-none focus:border-tomato"><option value="MTN" ${p.network==="MTN"?"selected":""}>MTN</option><option value="Airtel" ${p.network==="Airtel"?"selected":""}>Airtel</option></select></div>`).join(""); }
+    window.addProvider=function(){ ALL_SETTINGS.providers.push({number:"",name:"",network:"MTN"}); renderProviders(ALL_SETTINGS.providers); };
+    window.removeProvider=function(i){ ALL_SETTINGS.providers.splice(i,1); renderProviders(ALL_SETTINGS.providers); };
+    window.updateProvider=function(i,k,v){ ALL_SETTINGS.providers[i][k]=v; };
+    window.saveAllSettings=async function(){ ALL_SETTINGS.welcomeBonus=parseFloat(document.getElementById("setWelcomeBonus").value)||3000; ALL_SETTINGS.dailyReturnRate=parseFloat(document.getElementById("setDailyRate").value)||0.20; ALL_SETTINGS.level1Commission=parseFloat(document.getElementById("setLevel1").value)||0.15; ALL_SETTINGS.minWithdrawal=parseFloat(document.getElementById("setMinWithdrawal").value)||7000; ALL_SETTINGS.referralBonus=parseFloat(document.getElementById("setReferralBonus").value)||500; await setDoc(doc(db,"settings","global"),ALL_SETTINGS); showAdminMessage("Saved","Global settings saved successfully"); };
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+      const sel=document.getElementById("notifTarget"); const inp=document.getElementById("notifCustomUser");
+      if(sel&&inp){ sel.addEventListener("change",()=>{ if(sel.value==="__custom"){inp.classList.remove("hidden");}else{inp.classList.add("hidden");} }); }
+    });
+  </script>
+</body>
+</html>

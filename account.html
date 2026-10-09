@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Milecapita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-tomato { background-color: #FF6347; }
+        .text-tomato { color: #FF6347; }
+        .border-tomato { border-color: #FF6347; }
+        .bg-tomato-light { background-color: #FFF0EB; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes bounceShort {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.15); }
+        }
+        .animate-bounce-short { animation: bounceShort 0.4s ease-in-out; }
+
+        @keyframes shimmer {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .skeleton-shimmer {
+            position: relative; overflow: hidden; background-color: #e5e7eb;
+        }
+        .skeleton-shimmer::after {
+            content: ""; position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.75) 50%, rgba(255,255,255,0) 60%, rgba(255,255,255,0) 100%);
+            animation: shimmer 1.3s linear infinite;
+        }
+        .skeleton-shimmer-dark {
+            position: relative; overflow: hidden; background-color: #1f2937;
+        }
+        .skeleton-shimmer-dark::after {
+            content: ""; position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 60%, rgba(255,255,255,0) 100%);
+            animation: shimmer 1.3s linear infinite;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up { animation: fadeInUp 0.45s ease-out forwards; }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-in { animation: modalIn 0.25s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-gray-900 flex justify-center h-screen font-sans">
+
+    <div class="w-full max-w-md bg-gradient-to-b from-[#FF6347] via-[#FFA07A] to-white text-gray-900 flex flex-col h-screen overflow-hidden shadow-2xl relative">
+
+        <!-- TOP HEADER -->
+        <header class="flex-shrink-0 flex justify-between items-center py-2 px-3 bg-white/10 backdrop-blur-md z-30 border-b border-white/20 shadow-sm">
+            <div class="flex items-center space-x-2">
+                <img src="https://i.ibb.co/wZXxTC0g/ei-1790277686905-removebg-preview.png" alt="Milecapita Logo" class="w-10 h-10 object-contain drop-shadow-md">
+                <h1 class="font-bold text-base text-white tracking-tight drop-shadow-sm">Milecapita</h1>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div onclick="openNotifications()" class="relative cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span id="notifBadge" class="hidden absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[9px] font-bold rounded-full items-center justify-center border border-white">0</span>
+                </div>
+                <div class="cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- SCROLLABLE MIDDLE CONTENT -->
+        <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-6">
+
+            <!-- SKELETON LOADER -->
+            <div id="skeletonLoader" class="space-y-5">
+                <div class="bg-gray-900 rounded-3xl p-5 shadow-lg border border-tomato/30 relative overflow-hidden">
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-20 h-20 rounded-full skeleton-shimmer-dark mb-3 border-2 border-white/10"></div>
+                        <div class="h-5 w-32 rounded skeleton-shimmer-dark mb-2"></div>
+                        <div class="h-3 w-40 rounded skeleton-shimmer-dark mb-3"></div>
+                        <div class="h-5 w-24 rounded-full skeleton-shimmer-dark mb-4"></div>
+                        <div class="grid grid-cols-3 gap-2 w-full mt-2">
+                            <div class="bg-gray-800 rounded-xl p-3 border border-gray-700 space-y-2">
+                                <div class="h-2.5 w-14 rounded skeleton-shimmer-dark"></div>
+                                <div class="h-3.5 w-16 rounded skeleton-shimmer-dark"></div>
+                            </div>
+                            <div class="bg-gray-800 rounded-xl p-3 border border-gray-700 space-y-2">
+                                <div class="h-2.5 w-14 rounded skeleton-shimmer-dark"></div>
+                                <div class="h-3.5 w-16 rounded skeleton-shimmer-dark"></div>
+                            </div>
+                            <div class="bg-gray-800 rounded-xl p-3 border border-gray-700 space-y-2">
+                                <div class="h-2.5 w-14 rounded skeleton-shimmer-dark"></div>
+                                <div class="h-3.5 w-16 rounded skeleton-shimmer-dark"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-3 w-32 rounded skeleton-shimmer"></div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-32 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-36 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-28 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                    <div class="flex items-center justify-between p-4"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-24 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                </div>
+                <div class="h-3 w-32 rounded skeleton-shimmer mt-2"></div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-24 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-28 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                    <div class="flex items-center justify-between p-4"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg skeleton-shimmer"></div><div class="h-3.5 w-24 rounded skeleton-shimmer"></div></div><div class="h-4 w-4 rounded skeleton-shimmer"></div></div>
+                </div>
+                <div class="w-full h-12 rounded-xl skeleton-shimmer mt-4 mb-2"></div>
+            </div>
+
+            <!-- REAL CONTENT -->
+            <div id="realContent" class="space-y-5" style="display:none;">
+
+                <div class="bg-gray-900 rounded-3xl p-5 shadow-lg border border-tomato/30 relative overflow-hidden text-center">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-tomato/20 rounded-full"></div>
+                    <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-tomato/10 rounded-full"></div>
+
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-20 h-20 rounded-full flex items-center justify-center shadow-md mb-3 border-2 border-white overflow-hidden bg-white">
+                            <img src="https://i.ibb.co/wZXxTC0g/ei-1790277686905-removebg-preview.png" alt="Profile Picture" class="w-full h-full object-contain p-2">
+                        </div>
+                        
+                        <h2 id="userFullName" class="text-xl font-bold text-white mb-1">—</h2>
+                        <p id="userEmail" class="text-xs text-gray-400 mb-2">—</p>
+                        
+                        <span class="bg-tomato text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm mb-4">VIP 1 Member</span>
+
+                        <!-- ✨ 3-CARD GRID: Wallet / Referral Bonus / Total Earnings -->
+                        <div class="grid grid-cols-3 gap-2 w-full mt-2">
+                            <div class="bg-gray-800 rounded-xl p-2.5 border border-gray-700">
+                                <p class="text-[9px] text-gray-400 mb-1 font-bold uppercase tracking-wider">Wallet</p>
+                                <p id="walletBalance" class="text-xs font-bold text-white break-words">UGX 0</p>
+                            </div>
+                            <div class="bg-gray-800 rounded-xl p-2.5 border border-purple-500/30">
+                                <p class="text-[9px] text-purple-300 mb-1 font-bold uppercase tracking-wider">Referral</p>
+                                <p id="referralBalance" class="text-xs font-bold text-purple-300 break-words">UGX 0</p>
+                            </div>
+                            <div class="bg-gray-800 rounded-xl p-2.5 border border-gray-700">
+                                <p class="text-[9px] text-gray-400 mb-1 font-bold uppercase tracking-wider">Earnings</p>
+                                <p id="totalEarnings" class="text-xs font-bold text-emerald-300 break-words">UGX 0</p>
+                            </div>
+                        </div>
+
+                        <!-- Info line for referral rules -->
+                        <p class="text-[9px] text-gray-500 mt-3 leading-relaxed text-center px-2">
+                            💡 Referral bonuses can be withdrawn but not used to purchase laptops.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Account Settings Section -->
+                <div>
+                    <h3 class="font-bold text-sm text-gray-600 uppercase tracking-wider mb-3">Account Settings</h3>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div onclick="showPersonalInfo()" class="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Personal Information</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+
+                        <div onclick="showSecurity()" class="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Security & Password</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+
+                        <div onclick="showPaymentMethods()" class="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Payment Methods</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+
+                        <div onclick="showNotifications()" class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Notifications</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support & Legal Section -->
+                <div>
+                    <h3 class="font-bold text-sm text-gray-600 uppercase tracking-wider mb-3">Support & Legal</h3>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div onclick="handleSupport()" class="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Help Center</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+
+                        <div onclick="showTerms()" class="flex items-center justify-between p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Terms of Service</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+
+                        <div onclick="showPrivacy()" class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-tomato-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-tomato" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800">Privacy Policy</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logout Button -->
+                <button onclick="handleLogout()" class="w-full bg-red-50 text-red-500 font-bold py-3.5 rounded-xl shadow-sm hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2 border border-red-100 mt-4 mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Log Out
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="flex-shrink-0 w-full bg-gray-900 border-t border-gray-800 flex justify-around py-3 pb-safe z-30">
+            <a href="dashboard.html" class="flex flex-col items-center text-gray-400 hover:text-tomato transition-colors cursor-pointer group">
+                <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                <span class="text-[10px] font-medium mt-1">Home</span>
+            </a>
+            
+            <a href="laptops.html" class="flex flex-col items-center text-gray-400 hover:text-tomato transition-colors cursor-pointer group">
+                <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <span class="text-[10px] font-medium mt-1">Laptop</span>
+            </a>
+            
+            <a href="team.html" class="flex flex-col items-center text-gray-400 hover:text-tomato transition-colors cursor-pointer group">
+                <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="text-[10px] font-medium mt-1">Team</span>
+            </a>
+            
+            <a href="account.html" class="flex flex-col items-center text-tomato hover:text-tomato transition-colors cursor-pointer group">
+                <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="text-[10px] font-medium mt-1">Account</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- CUSTOM MODAL (Logout + Info)                                     -->
+    <!-- ================================================================= -->
+    <div id="accountModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="accountModalCard" class="bg-white rounded-[2rem] p-6 w-11/12 max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 relative overflow-hidden border border-gray-100">
+            <div class="flex justify-between items-center mb-5 relative z-10">
+                <h3 id="accountModalTitle" class="text-xl font-bold text-gray-800 tracking-tight"></h3>
+                <button id="accountModalClose" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors">&times;</button>
+            </div>
+            <div id="accountModalBody" class="text-sm text-gray-600 max-h-[75vh] overflow-y-auto no-scrollbar relative z-10"></div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- FIREBASE SCRIPT — reads account data directly from Firestore     -->
+    <!-- ================================================================= -->
+    <script type="module">
+        import { auth, db, doc, onSnapshot, onAuthStateChanged, signOut, collection, getDocs } from './firebase-config.js';
+
+        // Format currency
+        function formatUGX(n) {
+            return parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        // Format date
+        function formatDate(val) {
+            if (!val) return "—";
+            const d = new Date(val);
+            if (isNaN(d.getTime())) return val;
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Show skeleton → real content
+        function showRealContent() {
+            const skeleton = document.getElementById("skeletonLoader");
+            const real = document.getElementById("realContent");
+            if (skeleton) skeleton.style.display = "none";
+            if (real) {
+                real.style.display = "block";
+                real.classList.add("fade-in-up");
+            }
+        }
+
+        // ✨ UPDATED: Wallet shows only main balance, referral shown separately
+        function renderProfile(data) {
+            document.getElementById("userFullName").innerText = data.username || "User";
+            document.getElementById("userEmail").innerText = data.email || "No email";
+
+            // Main wallet balance (spendable on laptops)
+            const mainBalance = parseFloat(data.balance) || 0;
+            document.getElementById("walletBalance").innerText = `UGX ${formatUGX(mainBalance)}`;
+
+            // Referral bonus balance (withdrawable only)
+            const refBalance = parseFloat(data.referralBalance) || 0;
+            const refEl = document.getElementById("referralBalance");
+            if (refEl) refEl.innerText = `UGX ${formatUGX(refBalance)}`;
+
+            // Total daily earnings from active laptops
+            let earnings = 0;
+            (data.activeLaptops || []).forEach(l => {
+                earnings += (parseFloat(l.price) || 0) * 0.20;
+            });
+            document.getElementById("totalEarnings").innerText = `UGX ${formatUGX(earnings)}`;
+
+            window.CURRENT_USER = data;
+
+            // Load notifications after profile is ready
+            loadAccountNotifications();
+
+            showRealContent();
+        }
+
+        // =================================================================
+        // ✨ NOTIFICATIONS SYSTEM
+        // =================================================================
+        let ACCOUNT_NOTIFICATIONS = [];
+
+        async function loadAccountNotifications() {
+            if (!window.CURRENT_USER || !window.CURRENT_USER.username) return;
+            try {
+                const snap = await getDocs(collection(db, "notifications"));
+                const notifs = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.target === "all" || 
+                        data.target === window.CURRENT_USER.username || 
+                        data.target === window.CURRENT_USER.uid) {
+                        notifs.push({ id: d.id, ...data });
+                    }
+                });
+                notifs.sort((a, b) => new Date(b.sentAt || 0) - new Date(a.sentAt || 0));
+                ACCOUNT_NOTIFICATIONS = notifs;
+                updateNotifBadge();
+            } catch (e) {
+                console.error("Failed to load notifications:", e);
+            }
+        }
+
+        function getSeenIds() {
+            try { return JSON.parse(localStorage.getItem("seenNotifs") || "[]"); }
+            catch { return []; }
+        }
+
+        function updateNotifBadge() {
+            const seen = getSeenIds();
+            const unread = ACCOUNT_NOTIFICATIONS.filter(n => !seen.includes(n.id)).length;
+            const badge = document.getElementById("notifBadge");
+            if (!badge) return;
+            if (unread > 0) {
+                badge.classList.remove("hidden");
+                badge.classList.add("flex");
+                badge.innerText = unread > 9 ? "9+" : unread;
+            } else {
+                badge.classList.add("hidden");
+                badge.classList.remove("flex");
+            }
+        }
+
+        window.openNotifications = function() {
+            const seen = getSeenIds();
+            let html = "";
+            
+            if (ACCOUNT_NOTIFICATIONS.length === 0) {
+                html = `<p class="text-center text-gray-400 text-sm py-6">No notifications yet.</p>`;
+            } else {
+                ACCOUNT_NOTIFICATIONS.forEach(n => {
+                    const isNew = !seen.includes(n.id);
+                    const typeColors = {
+                        info: "border-sky-200 bg-sky-50",
+                        success: "border-emerald-200 bg-emerald-50",
+                        warning: "border-rose-200 bg-rose-50"
+                    };
+                    const typeDots = {
+                        info: "bg-sky-500",
+                        success: "bg-emerald-500",
+                        warning: "bg-rose-500"
+                    };
+                    const colorClass = typeColors[n.type] || "border-gray-200 bg-gray-50";
+                    const dotClass = typeDots[n.type] || "bg-gray-400";
+                    
+                    html += `
+                        <div class="rounded-2xl border ${colorClass} p-3 mb-2 ${isNew ? 'ring-2 ring-tomato/30' : ''}">
+                            <div class="flex items-start gap-2">
+                                <div class="w-2 h-2 rounded-full ${dotClass} mt-1.5 flex-shrink-0"></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-start gap-2">
+                                        <p class="text-xs font-bold text-gray-800">${n.title || "Notification"}</p>
+                                        ${isNew ? `<span class="text-[8px] font-bold text-white bg-tomato px-1.5 py-0.5 rounded-full flex-shrink-0">NEW</span>` : ''}
+                                    </div>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-relaxed">${n.message || ""}</p>
+                                    <p class="text-[9px] text-gray-400 mt-1.5">${formatDate(n.sentAt)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            openAccountModal("Notifications", `<div class="max-h-80 overflow-y-auto no-scrollbar -m-1 p-1">${html}</div>`);
+
+            const allIds = ACCOUNT_NOTIFICATIONS.map(n => n.id);
+            localStorage.setItem("seenNotifs", JSON.stringify(allIds));
+            updateNotifBadge();
+        };
+
+        // =================================================================
+        // MODAL SYSTEM
+        // =================================================================
+        const accountModal = document.getElementById("accountModal");
+        const accountModalCard = document.getElementById("accountModalCard");
+        const accountModalTitle = document.getElementById("accountModalTitle");
+        const accountModalBody = document.getElementById("accountModalBody");
+        const accountModalClose = document.getElementById("accountModalClose");
+
+        function openAccountModal(title, contentHTML) {
+            accountModalTitle.innerText = title;
+            accountModalBody.innerHTML = contentHTML;
+            accountModal.classList.remove("hidden");
+            setTimeout(() => {
+                accountModal.classList.remove("opacity-0");
+                accountModalCard.classList.remove("scale-95");
+                accountModalCard.classList.add("scale-100");
+            }, 10);
+        }
+        function closeAccountModal() {
+            accountModal.classList.add("opacity-0");
+            accountModalCard.classList.remove("scale-100");
+            accountModalCard.classList.add("scale-95");
+            setTimeout(() => accountModal.classList.add("hidden"), 300);
+        }
+        accountModalClose.addEventListener("click", closeAccountModal);
+        accountModal.addEventListener("click", (e) => {
+            if (e.target === accountModal) closeAccountModal();
+        });
+
+        window.closeAccountModal = closeAccountModal;
+
+        // =================================================================
+        // AUTH STATE
+        // =================================================================
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.replace("index.html");
+                return;
+            }
+            const userRef = doc(db, "users", user.uid);
+            onSnapshot(userRef, (snap) => {
+                if (snap.exists()) {
+                    renderProfile(snap.data());
+                } else {
+                    renderProfile({
+                        username: user.email?.split('@')[0] || "User",
+                        email: user.email,
+                        phone: "",
+                        balance: 0,
+                        referralBalance: 0,
+                        activeLaptops: [],
+                        transactions: [],
+                        teamMembers: []
+                    });
+                }
+            });
+        });
+
+        // =================================================================
+        // ACTION HANDLERS
+        // =================================================================
+        window.showPersonalInfo = function() {
+            const u = window.CURRENT_USER || {};
+            openAccountModal("Personal Information", `
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Username</p>
+                        <p class="text-sm font-bold text-gray-800">${u.username || "—"}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Email</p>
+                        <p class="text-sm font-bold text-gray-800">${u.email || "—"}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Phone</p>
+                        <p class="text-sm font-bold text-gray-800">${u.phone || "—"}</p>
+                    </div>
+                </div>
+            `);
+        };
+
+        window.showSecurity = function() {
+            openAccountModal("Security & Password", `
+                <div class="space-y-4 text-center">
+                    <p class="text-xs text-gray-500">To change your password, contact support via WhatsApp.</p>
+                    <button onclick="handleSupport()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl text-sm">Contact Support</button>
+                </div>
+            `);
+        };
+
+        window.showPaymentMethods = function() {
+            openAccountModal("Payment Methods", `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <div>
+                            <p class="text-gray-800 font-mono font-bold text-lg">0765050916</p>
+                            <p class="text-[11px] text-tomato font-bold mt-0.5">Kakandefrank</p>
+                        </div>
+                        <span class="bg-yellow-400 text-yellow-900 text-[10px] font-extrabold px-2 py-0.5 rounded">MTN</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                        <div>
+                            <p class="text-gray-800 font-mono font-bold text-lg">0747473704</p>
+                            <p class="text-[11px] text-tomato font-bold mt-0.5">Mesigwa Amos</p>
+                        </div>
+                        <span class="bg-red-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded">Airtel</span>
+                    </div>
+                </div>
+            `);
+        };
+
+        window.showNotifications = function() { 
+            window.openNotifications();
+        };
+
+        window.showTerms = function() {
+            openAccountModal("Terms of Service", `
+                <div class="space-y-3 text-xs text-gray-600 leading-relaxed">
+                    <p><b>1. Minimum Deposit:</b> 15,000 UGX</p>
+                    <p><b>2. Daily Returns:</b> 20% on active laptops</p>
+                    <p><b>3. Withdrawal Fee:</b> 10% on all withdrawals</p>
+                    <p><b>4. Welcome Bonus:</b> 3,000 UGX one-time</p>
+                    <p><b>5. Referral Bonus:</b> 15% of each referee's deposit (withdrawable only, cannot buy laptops)</p>
+                    <p><b>6. Withdrawal Rule:</b> You must make at least one deposit before you can withdraw</p>
+                </div>
+            `);
+        };
+
+        window.showPrivacy = function() {
+            openAccountModal("Privacy Policy", `
+                <div class="space-y-3 text-xs text-gray-600 leading-relaxed">
+                    <p class="text-red-500 font-semibold">⚠️ NEVER share your password with anyone.</p>
+                    <p>Your data is stored securely in Firebase and is only used to operate your account.</p>
+                    <p>We do not share your personal information with third parties.</p>
+                </div>
+            `);
+        };
+
+        window.handleSupport = function() {
+            window.open('https://wa.me/256765050916', '_blank');
+        };
+
+        // =================================================================
+        // CUSTOM LOGOUT MODAL
+        // =================================================================
+        window.handleLogout = function() {
+            openAccountModal("Log Out?", `
+                <div class="flex flex-col items-center text-center space-y-4 pt-2">
+                    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                        <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Confirm Logout</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Are you sure you want to log out of your Milecapita account?</p>
+                    <div class="flex space-x-3 w-full mt-6">
+                        <button onclick="closeAccountModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-2xl text-sm hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button onclick="confirmLogout()" class="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3.5 rounded-2xl text-sm shadow-lg shadow-red-500/30 hover:opacity-90 transition-opacity">
+                            Yes, Log Out
+                        </button>
+                    </div>
+                </div>
+            `);
+        };
+
+        window.confirmLogout = async function() {
+            try {
+                await signOut(auth);
+                accountModalBody.innerHTML = `
+                    <div class="flex flex-col items-center text-center space-y-4 py-8">
+                        <div class="w-16 h-16 border-4 border-tomato border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-sm text-gray-500">Logging you out...</p>
+                    </div>
+                `;
+                setTimeout(() => {
+                    window.location.replace("index.html");
+                }, 600);
+            } catch (e) {
+                console.error("Logout error:", e);
+                window.location.replace("index.html");
+            }
+        };
+    </script>
+</body>
+</html>

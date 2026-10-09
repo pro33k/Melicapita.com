@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Milecapita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+       .bg-tomato { background-color: #FF6347; }
+       .text-tomato { color: #FF6347; }
+       .border-tomato { border-color: #FF6347; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+       .animate-float { animation: float 4s ease-in-out infinite; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+       .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+       .no-scrollbar::-webkit-scrollbar { display:none; }
+       .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+       .loader {
+            width:45px; height:40px;
+            background: linear-gradient(#0000 calc(1*100%/6),#fff 0 calc(3*100%/6),#0000 0),
+                        linear-gradient(#0000 calc(2*100%/6),#fff 0 calc(4*100%/6),#0000 0),
+                        linear-gradient(#0000 calc(3*100%/6),#fff 0 calc(5*100%/6),#0000 0);
+            background-size:10px 400%; background-repeat:no-repeat;
+            animation: matrix 1s infinite linear; transform:scale(0.65);
+       }
+        @keyframes matrix { 0%{background-position:0% 100%,50% 100%,100% 100%} 100%{background-position:0% 0%,50% 0%,100% 0%} }
+    </style>
+</head>
+<body class="bg-gray-900 flex justify-center h-screen font-sans overflow-hidden relative">
+
+    <div class="w-full max-w-md bg-gradient-to-b from-[#FF6347] via-[#FFA07A] to-white flex flex-col items-center justify-center h-screen relative overflow-y-auto no-scrollbar py-8 px-5">
+        <div class="animate-float mb-4 z-10 p-2 bg-white/20 rounded-full border-2 border-white/60 shadow-xl">
+            <img src="https://i.ibb.co/wZXxTC0g/ei-1790277686905-removebg-preview.png" alt="Logo" class="w-24 h-24 object-contain">
+        </div>
+        
+        <h1 id="formTitle" class="text-2xl font-extrabold text-white mb-1 text-center">Welcome Back</h1>
+        <p id="formSubtitle" class="text-white/90 text-xs mb-6 text-center">Login to your Milecapita account</p>
+
+        <div class="w-full bg-white/95 backdrop-blur-md rounded-[2rem] p-6 shadow-2xl border border-gray-100">
+            <!-- TAB SWITCHER -->
+            <div class="flex bg-gray-100 rounded-xl p-1 mb-6 border border-gray-200">
+                <button id="tabLogin" class="flex-1 py-2.5 text-sm font-bold rounded-lg bg-tomato text-white shadow-sm transition-all">Login</button>
+                <button id="tabSignup" class="flex-1 py-2.5 text-sm font-bold rounded-lg text-gray-500 transition-all">Sign Up</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" class="space-y-4 animate-fade-in">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter email" required class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div class="flex justify-center pt-2 pb-1">
+                    <p class="text-gray-500 text-xs">Don't have account? <a href="#" id="loginToggleBtn" class="font-bold text-tomato ml-1">Sign Up</a></p>
+                </div>
+                <button type="submit" id="loginBtn" class="w-full bg-tomato text-white font-bold py-3.5 rounded-xl shadow-lg h-[52px] flex justify-center items-center hover:opacity-95 transition-opacity">Login</button>
+            </form>
+
+            <!-- SIGNUP FORM -->
+            <form id="signupForm" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Full Name</label>
+                    <input type="text" id="signupName" placeholder="John Doe" required class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Email</label>
+                    <input type="email" id="signupEmail" placeholder="john@example.com" required class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Phone Number</label>
+                    <input type="tel" id="signupPhone" placeholder="07********" required class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create password (min 6 chars)" required class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Referral Code (Optional)</label>
+                    <input type="text" id="signupReferral" placeholder="Enter referral code" class="w-full bg-gray-50 text-gray-800 text-sm rounded-xl px-4 py-3.5 border border-gray-200 outline-none focus:border-tomato">
+                </div>
+                <div class="flex justify-center pt-2 pb-1">
+                    <p class="text-gray-500 text-xs">Already have account? <a href="#" id="signupToggleBtn" class="font-bold text-tomato ml-1">Login</a></p>
+                </div>
+                <button type="submit" id="signupBtn" class="w-full bg-tomato text-white font-bold py-3.5 rounded-xl shadow-lg h-[52px] flex justify-center items-center hover:opacity-95 transition-opacity">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="customModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-[2rem] p-6 w-11/12 max-w-sm shadow-2xl" id="modalContainer">
+            <div id="modalBody" class="text-sm text-gray-600"></div>
+        </div>
+    </div>
+
+<script type="module">
+import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, doc, setDoc, updateDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from './firebase-config.js';
+
+const LOADER_HTML = `<div class="loader"></div>`;
+
+// Prevent early redirect during signup
+let isSigningUp = false; 
+
+// AUTO REDIRECT IF ALREADY LOGGED IN
+onAuthStateChanged(auth, (user) => { 
+    if (user && !isSigningUp) {
+        window.location.href = "dashboard.html"; 
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    // REFERRAL DETECTION FROM URL
+    const urlParams = new URLSearchParams(window.location.search);
+    let refCode = urlParams.get('ref');
+    if (!refCode) {
+        const pathSegments = window.location.pathname.split('/');
+        const refIndex = pathSegments.indexOf('ref');
+        if (refIndex !== -1 && pathSegments[refIndex + 1]) refCode = pathSegments[refIndex + 1];
+    }
+    if (refCode) {
+        const input = document.getElementById('signupReferral');
+        if (input) {
+            input.value = refCode;
+            input.readOnly = true;
+            input.classList.add('bg-yellow-50', 'border-yellow-400');
+            switchTab(false);
+        }
+    }
+});
+
+const loginForm = document.getElementById("loginForm"); 
+const signupForm = document.getElementById("signupForm");
+const formTitle = document.getElementById("formTitle"); 
+const formSubtitle = document.getElementById("formSubtitle");
+const tabLogin = document.getElementById("tabLogin"); 
+const tabSignup = document.getElementById("tabSignup");
+
+window.switchTab = function(isLogin) {
+    if (isLogin) {
+        loginForm.classList.remove("hidden"); 
+        signupForm.classList.add("hidden");
+        tabLogin.classList.add("bg-tomato", "text-white"); 
+        tabSignup.classList.remove("bg-tomato", "text-white");
+        formTitle.innerText = "Welcome Back"; 
+        formSubtitle.innerText = "Login to your Milecapita account";
+    } else {
+        loginForm.classList.add("hidden"); 
+        signupForm.classList.remove("hidden");
+        tabSignup.classList.add("bg-tomato", "text-white"); 
+        tabLogin.classList.remove("bg-tomato", "text-white");
+        formTitle.innerText = "Create Account"; 
+        formSubtitle.innerText = "Join Milecapita today - 15% referral";
+    }
+};
+
+tabLogin.addEventListener("click", () => switchTab(true)); 
+tabSignup.addEventListener("click", () => switchTab(false));
+document.getElementById("loginToggleBtn").addEventListener("click", (e) => { e.preventDefault(); switchTab(false); });
+document.getElementById("signupToggleBtn").addEventListener("click", (e) => { e.preventDefault(); switchTab(true); });
+
+function showModal(title, msg, isSuccess, url) {
+    const modal = document.getElementById("customModal"); 
+    const body = document.getElementById("modalBody");
+    const icon = isSuccess 
+        ? `<div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4 mx-auto text-3xl">✅</div>`
+        : `<div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto text-3xl">⚠️</div>`;
+        
+    body.innerHTML = `
+        <div class="flex flex-col items-center text-center space-y-2 pt-2">
+            ${icon}
+            <h3 class="text-xl font-bold text-gray-800">${title}</h3>
+            <p class="text-sm text-gray-500">${msg}</p>
+            <button id="modalDoneBtn" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl text-sm mt-6">Continue</button>
+        </div>
+    `;
+    modal.classList.remove("hidden"); 
+    setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    
+    document.getElementById("modalDoneBtn").addEventListener("click", () => { 
+        modal.classList.add("hidden"); 
+        if (url) window.location.href = url; 
+    });
+}
+
+function normalizePhone(phone) {
+    let p = phone.trim();
+    if (p.startsWith('+256')) p = '0' + p.slice(4);
+    else if (p.startsWith('256') && p.length >= 12) p = '0' + p.slice(3);
+    return p;
+}
+
+// LOGIN PROCESS
+loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim(); 
+    const pass = document.getElementById("loginPassword").value.trim();
+    
+    if (!email || !pass) return showModal("Missing", "Enter email and password", false);
+    
+    const btn = document.getElementById("loginBtn"); 
+    btn.innerHTML = LOADER_HTML; 
+    btn.disabled = true;
+    
+    try { 
+        await signInWithEmailAndPassword(auth, email, pass); 
+        showModal("Success", "Login successful!", true, "dashboard.html"); 
+    } catch (err) { 
+        let m = "Login failed. Check your details."; 
+        if (err.code === "auth/user-not-found") m = "No account found. Sign up first"; 
+        if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") m = "Incorrect email or password"; 
+        showModal("Failed", m, false); 
+        btn.innerHTML = "Login"; 
+        btn.disabled = false; 
+    }
+});
+
+// SIGNUP PROCESS
+signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("signupName").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const rawPhone = document.getElementById("signupPhone").value.trim();
+    const phone = normalizePhone(rawPhone);
+    const password = document.getElementById("signupPassword").value.trim();
+    const referral = document.getElementById("signupReferral").value.trim();
+
+    if (!name || !email || !phone || !password || password.length < 6) {
+        return showModal("Invalid Input", "Please fill in all fields. Password must be at least 6 characters.", false);
+    }
+    
+    if (!/^0(7[012456789])\d{7}$/.test(phone)) {
+        return showModal("Invalid Phone", "Please enter a valid Ugandan phone number (e.g. 0701234567).", false);
+    }
+
+    const btn = document.getElementById("signupBtn"); 
+    btn.innerHTML = LOADER_HTML; 
+    btn.disabled = true;
+
+    try {
+        isSigningUp = true;
+
+        // 1. Create Authentication Account
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = cred.user;
+
+        // 2. Save Document into Firestore
+        await setDoc(doc(db, "users", user.uid), {
+            username: name,
+            email: email,
+            phone: phone,
+            balance: 3000,
+            referralBalance: 0,
+            bonusBalance: 3000,
+            activeLaptops: [],
+            transactions: [{
+                id: "WELCOME-BONUS",
+                type: "Welcome Bonus",
+                amount: 3000,
+                date: new Date().toISOString(),
+                status: "Completed"
+            }],
+            teamMembers: [],
+            referredBy: referral || null,
+            referralPaid: false,
+            referralBonusPaid: false,
+            lastEarningPaid: new Date().toISOString(),
+            totalActiveInvestment: 0,
+            dailyYield: 0,
+            totalEarned: 0,
+            activeRobotsCount: 0,
+            status: "Active",
+            joinedDate: new Date().toISOString(),
+            createdAt: serverTimestamp()
+        });
+
+        // ✨ FIX: Add this user to the REFERRER's team
+        if (referral) {
+            try {
+                const referrerQuery = query(collection(db, "users"), where("username", "==", referral));
+                const referrerSnap = await getDocs(referrerQuery);
+                
+                if (!referrerSnap.empty) {
+                    const referrerDoc = referrerSnap.docs[0];
+                    const referrerData = referrerDoc.data();
+                    const existingTeam = Array.isArray(referrerData.teamMembers) ? referrerData.teamMembers : [];
+                    
+                    // Avoid duplicates
+                    const alreadyInTeam = existingTeam.some(m => m.uid === user.uid);
+                    if (!alreadyInTeam) {
+                        existingTeam.push({
+                            uid: user.uid,
+                            name: name,
+                            username: name,
+                            level: 1,
+                            joined: new Date().toISOString(),
+                            earned: 0
+                        });
+                        
+                        await updateDoc(doc(db, "users", referrerDoc.id), {
+                            teamMembers: existingTeam
+                        });
+                        console.log(`Added ${name} to ${referral}'s team`);
+                    }
+                }
+            } catch (teamError) {
+                // Don't fail the whole signup if the team add fails
+                console.error("Failed to add to referrer's team:", teamError);
+            }
+        }
+
+        showModal("Success!", "Account created successfully with a UGX 3000 bonus!", true, "dashboard.html");
+        
+    } catch (err) {
+        isSigningUp = false; 
+        console.error("Signup error:", err);
+        let m = "Signup failed. Please try again."; 
+        if (err.code === "auth/email-already-in-use") m = "This email is already registered. Please login."; 
+        if (err.code === "auth/weak-password") m = "Password is too weak. Make it at least 6 characters."; 
+        showModal("Failed", m, false); 
+        btn.innerHTML = "Create Account"; 
+        btn.disabled = false;
+    }
+});
+</script>
+</body>
+</html>
